@@ -34,8 +34,13 @@ namespace EntityFramework_Slider.Areas.Admin.Controllers
         public async Task<IActionResult> Create(ExpertsHeader expertsHeader)
         {
 
-            var dbExpertsHeader = await _context.ExpertsHeaders.FirstOrDefaultAsync(m=>m.Title== expertsHeader.Title ||
-																					m.Description == expertsHeader.Description );
+            if (expertsHeader.Title == null || expertsHeader.Description == null)
+            {
+                return View();
+            }
+
+            var dbExpertsHeader = await _context.ExpertsHeaders.FirstOrDefaultAsync(m=>m.Title.Trim().ToLower() == expertsHeader.Title.Trim().ToLower() &&
+																					m.Description.Trim().ToLower() == expertsHeader.Description.Trim().ToLower() );
 
             if(dbExpertsHeader != null)
             {
@@ -44,9 +49,9 @@ namespace EntityFramework_Slider.Areas.Admin.Controllers
 				return View();
             }
 
+       
             _context.ExpertsHeaders.AddAsync(expertsHeader);
             await _context.SaveChangesAsync();
-
             return RedirectToAction(nameof(Index));
 
         }
@@ -65,7 +70,6 @@ namespace EntityFramework_Slider.Areas.Admin.Controllers
             _context.ExpertsHeaders.Remove(expertsHeader);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-           
            
         }
 
@@ -89,7 +93,12 @@ namespace EntityFramework_Slider.Areas.Admin.Controllers
         {
 			if (id == null) return BadRequest();
 
-			ExpertsHeader dbExpertsHeader = await _context.ExpertsHeaders.AsNoTracking().FirstOrDefaultAsync(m => m.Id == id);
+            if (expertsHeader.Title == null || expertsHeader.Description == null)
+            {
+                return View();
+            }
+
+            ExpertsHeader dbExpertsHeader = await _context.ExpertsHeaders.AsNoTracking().FirstOrDefaultAsync(m => m.Id == id);
 
 			if (dbExpertsHeader == null) return NotFound();
 
